@@ -1,0 +1,5 @@
+start,bert,ernie,end,
+abc
+start:a,bert;b,ernie;c,start.bert:a,bert;b,bert;c,ernie.ernie:a,bert;b,start;c,end.end:.
+start
+end,

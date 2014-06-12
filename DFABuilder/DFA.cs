@@ -31,11 +31,10 @@ namespace DFABuilder
         /// string.
         /// </summary>
         /// <param name="alphabet">The alphabet of this DFA</param>
-        /// <param name="dfa_string">An encoding of this DFA</param>
-        public DFA(HashSet<char> alphabet, List<string> dfa_string)
+        /// <param name="dfa_string_list">An encoding of this DFA</param>
+        public DFA(List<string> dfa_string_list)
         {
-            this.Alphabet = alphabet;
-            this._parse(dfa_string);
+            this._parse(dfa_string_list);
             this.CurrentState = this.StartState;
         }
         /// <summary>
