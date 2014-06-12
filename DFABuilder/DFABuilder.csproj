@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="_samples\bertNernie.txt" />
+    <Content Include="_samples\binary_multiple_of_5.txt" />
+    <Content Include="_samples\substrings_ab_ba.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
