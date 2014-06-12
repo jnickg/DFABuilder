@@ -77,6 +77,7 @@ namespace DFABuilder
                 if (false == this.StepOn(c))
                 {
                     accepted = false;
+                    break;
                 }
             }
             if (this.AcceptStates.Contains(this.CurrentState))

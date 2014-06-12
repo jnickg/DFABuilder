@@ -55,14 +55,14 @@ namespace DFABuilder
                 }
                 for (int i = 1; i < args.ToList().Count; i++)
                 {
-                    output.WriteLine("Running DFA on input string: {0}", args[1]);
-                    if (dfa.RunOn(args[1]))
+                    output.WriteLine("\nRunning DFA on input string: {0}", args[i]);
+                    if (dfa.RunOn(args[i]))
                     {
-                        output.WriteLine("That string is accepted by the DFA.");
+                        output.WriteLine("\t...ACCEPTED by the DFA.");
                     }
                     else
                     {
-                        output.WriteLine("That string is rejected by the DFA.");
+                        output.WriteLine("\t...REJECTED by the DFA.");
                     }
                 }
                 output.WriteLine("\n\nClosing program.");
