@@ -12,14 +12,14 @@ namespace DFABuilder
         static TextWriter output = Console.Out;
         static void Main(string[] args)
         {
-            DFA deterministicfiniteautomata_isalongname;
+            DFA dfa;
             TextReader dfa_reader;
             List<string> dfa_strings;
             string input;
             string line=String.Empty;
             try
             {
-                if (args.ToList().Count > 2)
+                if (args.ToList().Count < 2)
                 {
                     throw new ArgumentException("Passed too many arguments");
                 }
@@ -27,7 +27,7 @@ namespace DFABuilder
                 dfa_reader = File.OpenText(args[0]);
                 output.WriteLine("Reading contents...");
                 dfa_strings = new List<string>();
-                while (null != (line=dfa_reader.ReadLine()))
+                while (null != (line = dfa_reader.ReadLine()))
                 {
                     output.WriteLine("\tread line: {0}", line);
                     dfa_strings.Add(line);
@@ -35,18 +35,37 @@ namespace DFABuilder
                 output.WriteLine("Closing file...");
                 dfa_reader.Close();
                 output.WriteLine("Generating DFA from description...");
-                deterministicfiniteautomata_isalongname = new DFA(dfa_strings);
-                output.WriteLine("Success. Running DFA on input string: {0}", args[1]);
-                if (deterministicfiniteautomata_isalongname.RunOn(args[1]))
+                dfa = new DFA(dfa_strings);
+                output.WriteLine("Success. Printing DFA...");
+                output.Write("Alphabet: ");
+                foreach (char letter in dfa.Alphabet) { output.Write(letter); }
+                output.WriteLine();
+                output.WriteLine("Start state: {0}", dfa.StartState.Name);
+                output.Write("Accept states: ");
+                foreach (DFA_State state in dfa.AcceptStates) { output.Write(state.Name); }
+                output.WriteLine();
+                output.WriteLine("Transitions:");
+                foreach (DFA_State state in dfa.States)
                 {
-                    output.WriteLine("That string is accepted by the DFA.");
+                    output.WriteLine("\t{0} transitions:", state.Name);
+                    foreach (char k in state.Transitions.Keys)
+                    {
+                        output.WriteLine("\t\t{0}->{1}", k, state.Transitions[k].Name);
+                    }
                 }
-                else
+                for (int i = 1; i < args.ToList().Count; i++)
                 {
-                    output.WriteLine("That string is rejected by the DFA.");
+                    output.WriteLine("Running DFA on input string: {0}", args[1]);
+                    if (dfa.RunOn(args[1]))
+                    {
+                        output.WriteLine("That string is accepted by the DFA.");
+                    }
+                    else
+                    {
+                        output.WriteLine("That string is rejected by the DFA.");
+                    }
                 }
                 output.WriteLine("\n\nClosing program.");
-
             }
             catch (FileNotFoundException)
             {
@@ -59,11 +78,15 @@ namespace DFABuilder
             }
             catch (Exception ex)
             {
-                output.WriteLine("Whoopsa, you broke me. Way to go.");
+                output.WriteLine("Whoops, you broke me. Way to go.");
                 output.WriteLine("Caught exception type: {0}", ex.GetType().ToString());
                 output.WriteLine("Message: {0}", ex.Message);
                 output.WriteLine("\n\nAborting program...");
                 return;
+            }
+            finally
+            {
+                if (output == Console.Out) { Console.ReadKey(); }
             }
         }
     }

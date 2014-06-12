@@ -34,6 +34,9 @@ namespace DFABuilder
         /// <param name="dfa_string_list">An encoding of this DFA</param>
         public DFA(List<string> dfa_string_list)
         {
+            this.States = new HashSet<DFA_State>();
+            this.Alphabet = new HashSet<char>();
+            this.AcceptStates = new HashSet<DFA_State>();
             this._parse(dfa_string_list);
             this.CurrentState = this.StartState;
         }
@@ -45,7 +48,8 @@ namespace DFABuilder
         /// <returns>Whether this step was valid</returns>
         public bool StepOn(char character)
         {
-            this.CurrentState = CurrentState.TransitionOn(character);
+            DFA_State nextState = this.CurrentState.TransitionOn(character);
+            this.CurrentState = nextState;
             if (null == this.CurrentState)
             {
                 return false;
@@ -185,9 +189,13 @@ namespace DFABuilder
                 if (c == ':')
                 {
                     workingOnState = this.getStateBy(sb.ToString());
+                    if (workingOnState == null)
+                    {
+                        throw new ArgumentException("Specified transition for nonexistent state");
+                    }
                     sb.Clear();
                 }
-                if (c == ',')
+                else if (c == ',')
                 {
                     if (prevChar == Char.MinValue)
                     {
@@ -196,13 +204,29 @@ namespace DFABuilder
                     transChar = prevChar;
                     sb.Clear();
                 }
-                if (c == ';')
+                else if (c == ';')
                 {
-                    if((null==workingOnState)||
-                        (null==transDest)||
-                        (char.MinValue==prevChar))
                     transDest = this.getStateBy(sb.ToString());
+                    if ((null == workingOnState) ||
+                        (null == transDest) ||
+                        (char.MinValue == prevChar))
+                    {
+                        throw new ArgumentException("Illegal transition string");
+                    }
                     workingOnState.AddTransition(transChar, transDest);
+                    sb.Clear();
+                }
+                else if (c == '.')
+                {
+                    transDest = this.getStateBy(sb.ToString());
+                    if ((null == workingOnState) ||
+                            (null == transDest) ||
+                            (char.MinValue == prevChar))
+                    {
+                        throw new ArgumentException("Illegal transition string");
+                    }
+                    workingOnState.AddTransition(transChar, transDest);
+                    workingOnState = null;
                     sb.Clear();
                 }
                 else
@@ -237,8 +261,8 @@ namespace DFABuilder
             {
                 if (c == ',')
                 {
-                    if (false == acceptStates.Add(
-                        this.getStateBy(sb.ToString())))
+                    DFA_State newAccept = this.getStateBy(sb.ToString());
+                    if (false == acceptStates.Add(newAccept))
                     {
                         throw new ArgumentException("Illegal accept state string");
                     }
@@ -248,6 +272,7 @@ namespace DFABuilder
                     sb.Append(c);
                 }
             }
+            this.AcceptStates = acceptStates;
         }
         /// <summary>
         /// Determines whether this DFA follows all the rules of being a DFA
