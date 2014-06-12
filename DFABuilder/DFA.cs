@@ -19,9 +19,12 @@ namespace DFABuilder
         /// </summary>
         public DFA_State CurrentState { get; private set; }
         /// <summary>
-        /// The 
+        /// The starting state of this DFA
         /// </summary>
         public DFA_State StartState { get; private set; }
+        /// <summary>
+        /// The set of accept states of this DFA
+        /// </summary>
         public HashSet<DFA_State> AcceptStates { get; private set; }
         /// <summary>
         /// Creates a new DFA with the specified alphabet, parsed from the specified
@@ -110,7 +113,7 @@ namespace DFABuilder
         /// <param name="dfa_string">The string to parse.</param>
         private void _parse(List<string> dfa_string)
         {
-            if (dfa_string.Count > 5)
+            if (dfa_string.Count != 5)
             {
                 throw new ArgumentException("DFA String too long");
             }
