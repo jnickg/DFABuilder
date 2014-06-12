@@ -64,6 +64,10 @@ namespace DFABuilder
         /// <returns>Whether the input was accepted.</returns>
         public bool RunOn(string input)
         {
+            if (false == this._validate())
+            {
+                throw new Exception("This DFA is illegal and cannot be run");
+            }
             bool accepted;
             foreach (char c in input)
             {
@@ -84,10 +88,10 @@ namespace DFABuilder
             return accepted;
         }
         /// <summary>
-        /// 
+        /// Returns this DFA's state of the specified name
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
+        /// <param name="name">The name of the state to get</param>
+        /// <returns>The state matching the specified name</returns>
         public DFA_State getStateBy(string name)
         {
             foreach (DFA_State state in this.States)
@@ -99,19 +103,31 @@ namespace DFABuilder
             }
             return null;
         }
+        /// <summary>
+        /// Parses the dfa_string and applies its contents to this instance.
+        /// </summary>
+        /// <param name="dfa_string">The string to parse.</param>
         private void _parse(List<string> dfa_string)
         {
             if (dfa_string.Count > 5)
             {
                 throw new ArgumentException("DFA String too long");
             }
-            this._parse(dfa_string);
+            this._parseStates(dfa_string[0]);
+            this._parseAlphabet(dfa_string[1]);
+            this._parseTransitions(dfa_string[2]);
+            this._parseStartState(dfa_string[3]);
+            this._parseAcceptStates(dfa_string[4]);
             if (false == this._validate())
             {
                 throw new ArgumentException("Illegal DFA");
             }
 
         }
+        /// <summary>
+        /// Creates DFA_State objects for each item in the string
+        /// </summary>
+        /// <param name="state_string"></param>
         private void _parseStates(string state_string)
         {
             StringBuilder sb = new StringBuilder();
@@ -138,6 +154,10 @@ namespace DFABuilder
                     newStateName));
             }
         }
+        /// <summary>
+        /// Generates the DFA's alphabet from the specified string
+        /// </summary>
+        /// <param name="alphabet_string"></param>
         private void _parseAlphabet(string alphabet_string)
         {
             HashSet<char> alphabetCharacters = new HashSet<char>();
@@ -150,13 +170,17 @@ namespace DFABuilder
             }
             this.Alphabet = alphabetCharacters;
         }
+        /// <summary>
+        /// Parses the transitions from the given string
+        /// </summary>
+        /// <param name="transition_string"></param>
         private void _parseTransitions(string transition_string)
         {
             StringBuilder sb = new StringBuilder();
-            DFA_State workingOnState;
-            char transChar;
+            DFA_State workingOnState = null;
+            DFA_State transDest = null;
+            char transChar = Char.MinValue;
             char prevChar = Char.MinValue;
-            DFA_State transDest;
             foreach (char c in transition_string)
             {
                 if (c == ':')
@@ -175,7 +199,11 @@ namespace DFABuilder
                 }
                 if (c == ';')
                 {
+                    if((null==workingOnState)||
+                        (null==transDest)||
+                        (char.MinValue==prevChar))
                     transDest = this.getStateBy(sb.ToString());
+                    workingOnState.AddTransition(transChar, transDest);
                     sb.Clear();
                 }
                 else
@@ -186,6 +214,10 @@ namespace DFABuilder
                 prevChar = c;
             }
         }
+        /// <summary>
+        /// Parses the start state from the given string
+        /// </summary>
+        /// <param name="start_string"></param>
         private void _parseStartState(string start_string)
         {
             this.StartState = this.getStateBy(start_string);
@@ -194,6 +226,10 @@ namespace DFABuilder
                 throw new ArgumentException("Illegal start state string");
             }
         }
+        /// <summary>
+        /// Parses the accept states from the given string
+        /// </summary>
+        /// <param name="accept_string"></param>
         private void _parseAcceptStates(string accept_string)
         {
             StringBuilder sb = new StringBuilder();
@@ -214,6 +250,10 @@ namespace DFABuilder
                 }
             }
         }
+        /// <summary>
+        /// Determines whether this DFA follows all the rules of being a DFA
+        /// </summary>
+        /// <returns></returns>
         private bool _validate()
         {
             // Start state must be in set of states
@@ -250,7 +290,6 @@ namespace DFABuilder
                         return false;
                     }
                 }
-
             }
             return true;
         }
